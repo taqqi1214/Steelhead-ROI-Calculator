@@ -308,18 +308,31 @@ export default function App() {
       const tempPdf = new jsPDF();
       const imgProps = tempPdf.getImageProperties(imgData);
       
-      // Create a PDF with a custom page size that exactly matches the content
-      // This prevents any charts or text from being cut in half across pages
-      const pdfWidth = imgProps.width;
-      const pdfHeight = imgProps.height;
+      // Create an A4 size PDF
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const margin = 10; // 10mm margin
+      const pdfWidth = pdf.internal.pageSize.getWidth() - (margin * 2);
+      const pdfPageHeight = pdf.internal.pageSize.getHeight();
+      const contentHeight = pdfPageHeight - (margin * 2);
       
-      const pdf = new jsPDF({
-        orientation: pdfWidth > pdfHeight ? 'landscape' : 'portrait',
-        unit: 'px',
-        format: [pdfWidth, pdfHeight]
-      });
+      // Calculate the height of the image in the PDF based on the A4 width
+      const imgHeightInPdf = (imgProps.height * pdfWidth) / imgProps.width;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      let heightLeft = imgHeightInPdf;
+      let position = margin;
+
+      // Add first page
+      pdf.addImage(imgData, 'PNG', margin, position, pdfWidth, imgHeightInPdf);
+      heightLeft -= contentHeight;
+
+      // Add subsequent pages
+      while (heightLeft > 0) {
+        position -= contentHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', margin, position, pdfWidth, imgHeightInPdf);
+        heightLeft -= contentHeight;
+      }
+      
       pdf.save('Steelhead-ROI-Report.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);
