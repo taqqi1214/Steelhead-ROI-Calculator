@@ -23,7 +23,9 @@ import {
   Info,
   ArrowUpRight,
   ArrowDownRight,
-  Clock
+  Clock,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
@@ -165,7 +167,7 @@ const InputField = ({ label, value, onChange, type = "number", min = 0, icon: Ic
         min={min}
         value={value}
         onChange={(e) => onChange(type === "number" ? parseFloat(e.target.value) || 0 : e.target.value)}
-        className="w-full bg-zinc-50 border-4 border-zinc-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+        className="w-full bg-zinc-50 dark:bg-zinc-900 border-4 border-zinc-200 dark:border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-zinc-900 dark:text-zinc-100"
       />
       {suffix && (
         <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-400">
@@ -178,25 +180,27 @@ const InputField = ({ label, value, onChange, type = "number", min = 0, icon: Ic
 
 const MetricCard = ({ label, value, subValue, trend, icon: Icon, color = "blue" }: any) => {
   const colors: any = {
-    blue: "text-blue-600 bg-blue-50",
-    green: "text-emerald-600 bg-emerald-50",
-    amber: "text-amber-600 bg-amber-50",
-    indigo: "text-indigo-600 bg-indigo-50",
-    brown: "text-amber-800 bg-amber-50",
-    purple: "text-purple-600 bg-purple-50",
+    blue: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30",
+    green: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30",
+    amber: "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30",
+    indigo: "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30",
+    brown: "text-amber-800 dark:text-amber-500 bg-amber-50 dark:bg-amber-900/30",
+    purple: "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30",
+    emerald: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30",
   };
 
   const valueColors: any = {
-    blue: "text-blue-600",
-    green: "text-emerald-600",
-    amber: "text-amber-600",
-    indigo: "text-indigo-600",
-    brown: "text-amber-800",
-    purple: "text-purple-600",
+    blue: "text-blue-600 dark:text-blue-400",
+    green: "text-emerald-600 dark:text-emerald-400",
+    amber: "text-amber-600 dark:text-amber-400",
+    indigo: "text-indigo-600 dark:text-indigo-400",
+    brown: "text-amber-800 dark:text-amber-500",
+    purple: "text-purple-600 dark:text-purple-400",
+    emerald: "text-emerald-600 dark:text-emerald-400",
   };
 
   return (
-    <div className="bg-white border-4 border-zinc-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-zinc-900 border-4 border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-300">
       <div className="flex justify-between items-start mb-4">
         <div className={cn("p-2.5 rounded-lg", colors[color])}>
           <Icon size={20} />
@@ -204,7 +208,7 @@ const MetricCard = ({ label, value, subValue, trend, icon: Icon, color = "blue" 
         {trend !== undefined && (
           <div className={cn(
             "flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full",
-            trend > 0 ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"
+            trend > 0 ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30" : "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/30"
           )}>
             {trend > 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
             {Math.abs(trend).toFixed(0)}%
@@ -212,15 +216,16 @@ const MetricCard = ({ label, value, subValue, trend, icon: Icon, color = "blue" 
         )}
       </div>
       <div className="space-y-1">
-        <p className="text-xs font-medium text-zinc-600 uppercase tracking-wide">{label}</p>
-        <h3 className={cn("text-2xl font-bold", valueColors[color] || "text-zinc-900")}>{value}</h3>
-        {subValue && <p className="text-xs text-zinc-400">{subValue}</p>}
+        <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">{label}</p>
+        <h3 className={cn("text-2xl font-bold", valueColors[color] || "text-zinc-900 dark:text-zinc-100")}>{value}</h3>
+        {subValue && <p className="text-xs text-zinc-400 dark:text-zinc-500">{subValue}</p>}
       </div>
     </div>
   );
 };
 
 export default function App() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [inputs, setInputs] = useState<ROIInputs>(() => {
     const saved = localStorage.getItem('steelhead_roi_inputs');
     if (saved) {
@@ -279,7 +284,7 @@ export default function App() {
       // Use pixelRatio: 1 to prevent iOS Safari canvas size limits from cutting off the bottom
       const imgData = await htmlToImage.toPng(input, { 
         pixelRatio: 1,
-        backgroundColor: '#fafafa', // Match bg-zinc-50
+        backgroundColor: isDarkMode ? '#09090b' : '#fafafa', // Match bg-zinc-950 or bg-zinc-50
         width: targetWidth,
         height: targetHeight,
         filter: (node) => {
@@ -640,9 +645,9 @@ export default function App() {
   const YOY_COLORS = ['#94a3b8', '#3b82f6'];
 
   return (
-    <div id="roi-dashboard-root" className="min-h-screen bg-zinc-50 font-sans text-zinc-900">
+    <div id="roi-dashboard-root" className={cn("min-h-screen font-sans transition-colors duration-300", isDarkMode ? "dark bg-zinc-950 text-zinc-100" : "bg-zinc-50 text-zinc-900")}>
       {/* Header */}
-      <header className="bg-white border-b-4 border-zinc-200 sticky top-0 z-10">
+      <header className="bg-white dark:bg-zinc-900 border-b-4 border-zinc-200 dark:border-zinc-800 sticky top-0 z-10 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-6 h-6 flex items-center justify-center">
@@ -672,10 +677,17 @@ export default function App() {
               >
                 Steelhead ROI
               </h1>
-              <p className="text-xs text-zinc-600 font-medium uppercase tracking-wider">WAN Optimization Business Case</p>
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 font-medium uppercase tracking-wider transition-colors duration-300">WAN Optimization Business Case</p>
             </div>
           </div>
           <div id="download-button-container" className="flex items-center gap-4">
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 transition-colors"
+              title="Toggle Dark Mode"
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <button
               onClick={downloadPDF}
               disabled={isDownloading}
@@ -729,7 +741,7 @@ export default function App() {
             color="purple"
           />
           <MetricCard 
-            label="Hrs Gained (Steelhead)" 
+            label="Hrs Gained" 
             value={`${Math.round(metrics.hoursGainedPeriod).toLocaleString()} Hrs`} 
             subValue={`Total over ${inputs.supportYears}Y Period`}
             icon={Clock}
@@ -748,11 +760,11 @@ export default function App() {
           
           {/* Left Column: Inputs */}
           <div className="lg:col-span-4 space-y-6">
-            <section className="bg-white border-4 border-zinc-200 rounded-2xl p-6 shadow-sm">
+            <section className="bg-white dark:bg-zinc-900 border-4 border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm transition-colors duration-300">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <Calculator className="text-blue-600" size={20} />
-                  <h2 className="font-bold text-zinc-800">Configuration Parameters</h2>
+                  <h2 className="font-bold text-zinc-800 dark:text-zinc-100">Configuration Parameters</h2>
                 </div>
                 <button 
                   onClick={handleReset}
@@ -765,7 +777,7 @@ export default function App() {
               <div className="space-y-6">
                 {/* Licensing Model Selection */}
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">Licensing Model</label>
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Licensing Model</label>
                   <div className="grid grid-cols-1 gap-2">
                     <button
                       className="py-2 text-[10px] font-bold rounded-lg transition-all uppercase tracking-widest text-white shadow-lg border-none"
@@ -783,7 +795,7 @@ export default function App() {
 
                 {/* Support Selection */}
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">Analysis Period</label>
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Analysis Period</label>
                   <div className="grid grid-cols-3 gap-2">
                     {[1, 3, 5].map((yr) => (
                       <button
@@ -793,7 +805,7 @@ export default function App() {
                           "py-2 text-sm font-bold rounded-lg border transition-all",
                           inputs.supportYears === yr 
                             ? "text-white border-none shadow-lg" 
-                            : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300"
+                            : "bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
                         )}
                         style={inputs.supportYears === yr ? { 
                           background: 'linear-gradient(135deg, #7C3AED 0%, #8E2DE2 50%, #F97316 100%)'
@@ -859,10 +871,10 @@ export default function App() {
                         <span>32M</span>
                       </div>
                     </div>
-                    <div className="bg-zinc-50 p-3 rounded-lg border-4 border-zinc-100 space-y-2">
-                      <div className="flex justify-between text-[10px] font-bold text-zinc-600 uppercase">
+                    <div className="bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg border-4 border-zinc-100 dark:border-zinc-800 space-y-2 transition-colors duration-300">
+                      <div className="flex justify-between text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase">
                         <span>Max TCP Throughput</span>
-                        <span className="text-zinc-900 normal-case">{metrics.throughputLimitMbps.toFixed(2)} Mbps</span>
+                        <span className="text-zinc-900 dark:text-zinc-100 normal-case">{metrics.throughputLimitMbps.toFixed(2)} Mbps</span>
                       </div>
                       <div className="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
                         <div 
@@ -925,7 +937,7 @@ export default function App() {
                 <div className="pt-4 border-t-4 border-zinc-100 space-y-4">
                   <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Optimization Performance</h3>
                   <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold text-zinc-600 uppercase">
+                    <div className="flex justify-between text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase">
                       <span>Riverbed Optimization</span>
                       <span>{inputs.optimizationPercentage}%</span>
                     </div>
@@ -947,7 +959,7 @@ export default function App() {
                 <div className="pt-4 border-t-4 border-zinc-100 space-y-4">
                   <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Capacity Planning</h3>
                   <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold text-zinc-600 uppercase">
+                    <div className="flex justify-between text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase">
                       <span>Annual BW Growth</span>
                       <span>{inputs.bwGrowthPercentage}%</span>
                     </div>
@@ -983,7 +995,7 @@ export default function App() {
                     suffix="/ mo"
                   />
                   <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold text-zinc-600 uppercase">
+                    <div className="flex justify-between text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase">
                       <span>MPLS Mix</span>
                       <span>{inputs.mplsPercentage}%</span>
                     </div>
@@ -1168,21 +1180,21 @@ export default function App() {
             {/* Charts Section */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {/* TCO Breakdown */}
-              <div className="bg-white border-4 border-zinc-200 rounded-2xl p-6 shadow-sm xl:col-span-2">
-                <h3 className="font-bold text-zinc-800 mb-6">Investment Breakdown</h3>
+              <div className="bg-white dark:bg-zinc-900 border-4 border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm xl:col-span-2 transition-colors duration-300">
+                <h3 className="font-bold text-zinc-800 dark:text-zinc-100 mb-6">Investment Breakdown</h3>
                 <div className="flex flex-col lg:flex-row items-center gap-8">
                   <div className="w-full lg:w-1/2 space-y-4">
                     {costBreakdownData.map((item, idx) => (
                       <div key={item.name} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[idx] }} />
-                          <span className="text-sm font-medium text-zinc-600">{item.name}</span>
+                          <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">{item.name}</span>
                         </div>
                         <span className="text-sm font-bold">{formatCurrency(item.value)}</span>
                       </div>
                     ))}
-                    <div className="pt-4 border-t-4 border-zinc-100 flex justify-between">
-                      <span className="text-sm font-bold text-zinc-900">Total</span>
+                    <div className="pt-4 border-t-4 border-zinc-100 dark:border-zinc-800 flex justify-between">
+                      <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Total</span>
                       <span className="text-sm font-bold text-blue-600">{formatCurrency(metrics.totalInvestment)}</span>
                     </div>
                   </div>
@@ -1210,10 +1222,10 @@ export default function App() {
               </div>
 
               {/* Cumulative Cost Projection Chart */}
-              <div className="bg-white border-4 border-zinc-200 rounded-2xl p-6 shadow-sm">
+              <div className="bg-white dark:bg-zinc-900 border-4 border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm transition-colors duration-300">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                   <div>
-                    <h3 className="font-bold text-zinc-800">Cumulative Cost Projection</h3>
+                    <h3 className="font-bold text-zinc-800 dark:text-zinc-100">Cumulative Cost Projection</h3>
                     <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider">Riverbed vs. ISP Bandwidth Upgrade</p>
                   </div>
                   <div className="flex gap-4 text-[10px] font-bold uppercase tracking-wider">
@@ -1256,9 +1268,9 @@ export default function App() {
               </div>
 
               {/* Investment vs Hard Savings Chart */}
-              <div className="bg-white border-4 border-zinc-200 rounded-2xl p-6 shadow-sm">
+              <div className="bg-white dark:bg-zinc-900 border-4 border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm transition-colors duration-300">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                  <h3 className="font-bold text-zinc-800">Investment vs. Hard Savings</h3>
+                  <h3 className="font-bold text-zinc-800 dark:text-zinc-100">Investment vs. Hard Savings</h3>
                   <div className="flex gap-4 text-[10px] font-bold uppercase tracking-wider">
                     <div className="flex items-center gap-1.5">
                       <div className="w-2.5 h-2.5 rounded-sm bg-blue-500" />
@@ -1301,26 +1313,26 @@ export default function App() {
             </div>
 
             {/* YoY Financial Summary Table */}
-            <div className="bg-white border-4 border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
-              <div className="px-6 py-4 border-b-4 border-zinc-100 bg-zinc-50/50">
-                <h3 className="font-bold text-zinc-800">YoY Financial Summary (Annual)</h3>
+            <div className="bg-white dark:bg-zinc-900 border-4 border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm transition-colors duration-300">
+              <div className="px-6 py-4 border-b-4 border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/50">
+                <h3 className="font-bold text-zinc-800 dark:text-zinc-100">YoY Financial Summary (Annual)</h3>
               </div>
               <div className="flex flex-col lg:flex-row items-center gap-8 p-6">
                 <div className="w-full lg:w-1/2 overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest bg-white">
+                      <tr className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest bg-white dark:bg-zinc-900">
                         <th className="px-6 py-4">Years</th>
                         <th className="px-6 py-4">ISP Upgrade Path Cost</th>
                         <th className="px-6 py-4">RVBD Path Cost</th>
                       </tr>
                     </thead>
-                    <tbody className="text-sm divide-y divide-zinc-100">
+                    <tbody className="text-sm divide-y divide-zinc-100 dark:divide-zinc-800">
                       {metrics.yoyFinancialData.map((data) => (
                         <tr key={data.name}>
-                          <td className="px-6 py-4 font-medium text-zinc-600 whitespace-nowrap">{data.name}</td>
-                          <td className="px-6 py-4 font-bold text-zinc-400">{formatCurrency(data.ISP)}</td>
-                          <td className="px-6 py-4 font-bold text-blue-600">{formatCurrency(data.Riverbed)}</td>
+                          <td className="px-6 py-4 font-medium text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{data.name}</td>
+                          <td className="px-6 py-4 font-bold text-zinc-400 dark:text-zinc-500">{formatCurrency(data.ISP)}</td>
+                          <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400">{formatCurrency(data.Riverbed)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1353,11 +1365,11 @@ export default function App() {
                   <div className="flex justify-center gap-6 mt-2">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: YOY_COLORS[0] }} />
-                      <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider">ISP Upgrade Path Cost</span>
+                      <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">ISP Upgrade Path Cost</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: YOY_COLORS[1] }} />
-                      <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider">RVBD Path Cost</span>
+                      <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">RVBD Path Cost</span>
                     </div>
                   </div>
                 </div>
@@ -1365,14 +1377,14 @@ export default function App() {
             </div>
 
             {/* Multi-Year Cumulative Financial Summary Table */}
-            <div className="bg-white border-4 border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
-              <div className="px-6 py-4 border-b-4 border-zinc-100 bg-zinc-50/50">
-                <h3 className="font-bold text-zinc-800">Multi-Year Cumulative Financial Summary</h3>
+            <div className="bg-white dark:bg-zinc-900 border-4 border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm transition-colors duration-300">
+              <div className="px-6 py-4 border-b-4 border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/50">
+                <h3 className="font-bold text-zinc-800 dark:text-zinc-100">Multi-Year Cumulative Financial Summary</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest bg-white">
+                    <tr className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest bg-white dark:bg-zinc-900">
                       <th className="px-6 py-4">Years</th>
                       <th className="px-6 py-4">ISP Upgrade Cumulative Cost</th>
                       <th className="px-6 py-4">RVBD Cumulative Cost</th>
@@ -1381,15 +1393,15 @@ export default function App() {
                       <th className="px-6 py-4">TOTAL SAVINGS (including Productivity Gain)</th>
                     </tr>
                   </thead>
-                  <tbody className="text-sm divide-y divide-zinc-100">
+                  <tbody className="text-sm divide-y divide-zinc-100 dark:divide-zinc-800">
                     {metrics.riverbedSpendData.map((data) => (
                       <tr key={data.name}>
-                        <td className="px-6 py-4 font-medium text-zinc-600 whitespace-nowrap">{data.name}</td>
-                        <td className="px-6 py-4 font-bold text-zinc-400">{formatCurrency(data.ISP)}</td>
-                        <td className="px-6 py-4 font-bold text-blue-600">{formatCurrency(data.Riverbed)}</td>
-                        <td className="px-6 py-4 font-bold text-zinc-600">{formatCurrency(data.Investment)}</td>
-                        <td className="px-6 py-4 font-bold text-emerald-600">{formatCurrency(data.HardSavings)}</td>
-                        <td className="px-6 py-4 font-bold text-indigo-600">{formatCurrency(data.TotalSavings)}</td>
+                        <td className="px-6 py-4 font-medium text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{data.name}</td>
+                        <td className="px-6 py-4 font-bold text-zinc-400 dark:text-zinc-500">{formatCurrency(data.ISP)}</td>
+                        <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400">{formatCurrency(data.Riverbed)}</td>
+                        <td className="px-6 py-4 font-bold text-zinc-600 dark:text-zinc-400">{formatCurrency(data.Investment)}</td>
+                        <td className="px-6 py-4 font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(data.HardSavings)}</td>
+                        <td className="px-6 py-4 font-bold text-indigo-600 dark:text-indigo-400">{formatCurrency(data.TotalSavings)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1398,21 +1410,21 @@ export default function App() {
             </div>
 
             {/* ROI Formula Explanation */}
-            <div className="bg-white border-4 border-zinc-200 rounded-2xl p-8 shadow-sm space-y-6">
+            <div className="bg-white dark:bg-zinc-900 border-4 border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 shadow-sm space-y-6 transition-colors duration-300">
               <div className="flex items-center gap-3">
                 <div className="bg-blue-600 p-2 rounded-lg text-white">
                   <Calculator size={20} />
                 </div>
-                <h3 className="text-xl font-bold text-zinc-800">Methodology</h3>
+                <h3 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Methodology</h3>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-zinc-900 border-l-4 border-blue-500 pl-3">The ROI % Formula</h4>
-                  <div className="bg-zinc-50 p-4 rounded-xl border-4 border-zinc-100 font-mono text-sm text-blue-700">
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 border-l-4 border-blue-500 pl-3">The ROI % Formula</h4>
+                  <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl border-4 border-zinc-100 dark:border-zinc-800 font-mono text-sm text-blue-700 dark:text-blue-400">
                     ROI % = (Total Hard Savings - Total Investment) / Total Investment x 100
                   </div>
-                  <p className="text-xs text-zinc-600 leading-relaxed">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                     {metrics.annualGrossSavings?.length > 0 && metrics.annualTCO?.length > 0 ? (
                       `Example: If Total Savings is ${formatCurrency(metrics.annualGrossSavings.reduce((a, b) => a + b, 0))} and Total Investment is ${formatCurrency(metrics.annualTCO.reduce((a, b) => a + b, 0))}, ROI % = (${formatCurrency(metrics.annualGrossSavings.reduce((a, b) => a + b, 0))} - ${formatCurrency(metrics.annualTCO.reduce((a, b) => a + b, 0))}) / ${formatCurrency(metrics.annualTCO.reduce((a, b) => a + b, 0))} x 100 = ${(((metrics.annualGrossSavings.reduce((a, b) => a + b, 0) - metrics.annualTCO.reduce((a, b) => a + b, 0)) / metrics.annualTCO.reduce((a, b) => a + b, 0)) * 100).toFixed(1)}%.`
                     ) : (
@@ -1421,11 +1433,11 @@ export default function App() {
                   </p>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-zinc-900 border-l-4 border-emerald-500 pl-3">Payback Period</h4>
-                  <div className="bg-zinc-50 p-4 rounded-xl border-4 border-zinc-100 font-mono text-sm text-emerald-700">
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 border-l-4 border-emerald-500 pl-3">Payback Period</h4>
+                  <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl border-4 border-zinc-100 dark:border-zinc-800 font-mono text-sm text-emerald-700 dark:text-emerald-400">
                     Payback Period = 1st Year Investment / (Hard Savings / 12)
                   </div>
-                  <p className="text-xs text-zinc-600 leading-relaxed">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                     {metrics.annualGrossSavings?.length > 0 && metrics.annualTCO?.length > 0 ? (
                       `Example: If 1st Year Investment is ${formatCurrency(metrics.annualTCO[0])} and Hard Savings is ${formatCurrency(metrics.annualGrossSavings[0])}, Monthly Net Savings = ${formatCurrency(metrics.annualGrossSavings[0] / 12)}. Payback Period = ${formatCurrency(metrics.annualTCO[0])} / ${formatCurrency(metrics.annualGrossSavings[0] / 12)} = ${(metrics.annualTCO[0] / (metrics.annualGrossSavings[0] / 12)).toFixed(1)} months.`
                     ) : (
@@ -1434,57 +1446,57 @@ export default function App() {
                   </p>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-zinc-900 border-l-4 border-blue-600 pl-3">Cumulative Cost Logic</h4>
-                  <div className="bg-zinc-50 p-4 rounded-xl border-4 border-zinc-100 font-mono text-sm text-blue-700 space-y-2">
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 border-l-4 border-blue-600 pl-3">Cumulative Cost Logic</h4>
+                  <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl border-4 border-zinc-100 dark:border-zinc-800 font-mono text-sm text-blue-700 dark:text-blue-400 space-y-2">
                     <p>ISP Path (Yr1) = (Total WAN BW × 2) × Price × 12</p>
                     <p>ISP Path (Yr N) = Yr(N-1) + {"{"}Annual Cost Yr(N-1) × (1 + Growth %){"}"}</p>
                     <p>Riverbed Path (Yr1) = (Total WAN BW × Price × 12) + CapEx + OpEx + Prof. Services</p>
                     <p>Riverbed Path (Yr N) = Yr(N-1) + {"{"}Annual BW Cost Yr(N-1) × (1 + Growth %){"}"} + OpEx</p>
                   </div>
-                  <p className="text-xs text-zinc-600 leading-relaxed">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                     This tracks the total cash outlay over time. The "Riverbed Path" includes the initial hardware investment plus ongoing support, while the "ISP Path" represents the escalating costs of buying more bandwidth to meet growth.
                   </p>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-zinc-900 border-l-4 border-indigo-500 pl-3">Effective Bandwidth</h4>
-                  <p className="text-xs text-zinc-600 leading-relaxed">
-                    Standard TCP is limited by <strong className="text-zinc-700">Throughput ≤ Window Size / RTT</strong>. On high-latency links, your "Effective BW" is often a fraction of your paid link speed.
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 border-l-4 border-indigo-500 pl-3">Effective Bandwidth</h4>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    Standard TCP is limited by <strong className="text-zinc-700 dark:text-zinc-300">Throughput ≤ Window Size / RTT</strong>. On high-latency links, your "Effective BW" is often a fraction of your paid link speed.
                   </p>
-                  <div className="bg-zinc-50 p-3 rounded-xl border-4 border-zinc-100 space-y-2">
+                  <div className="bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-xl border-4 border-zinc-100 dark:border-zinc-800 space-y-2">
                     <div className="flex justify-between text-[10px] font-bold">
-                      <span className="text-zinc-600">Max TCP Throughput (Un-optimized)</span>
-                      <span className="text-rose-600">{metrics.effectiveBwUnoptimized.toFixed(1)} Mbps</span>
+                      <span className="text-zinc-600 dark:text-zinc-400">Max TCP Throughput (Un-optimized)</span>
+                      <span className="text-rose-600 dark:text-rose-400">{metrics.effectiveBwUnoptimized.toFixed(1)} Mbps</span>
                     </div>
                     <div className="flex justify-between text-[10px] font-bold">
-                      <span className="text-zinc-600">RIVERBED EFFECTIVE THROUGHPUT (Optimized)</span>
-                      <span className="text-emerald-600">{metrics.effectiveBwOptimized.toFixed(0)} Mbps</span>
+                      <span className="text-zinc-600 dark:text-zinc-400">RIVERBED EFFECTIVE THROUGHPUT (Optimized)</span>
+                      <span className="text-emerald-600 dark:text-emerald-400">{metrics.effectiveBwOptimized.toFixed(0)} Mbps</span>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-zinc-900 border-l-4 border-amber-500 pl-3">Income Protection by Churn Reduction Logic</h4>
-                  <div className="bg-zinc-50 p-4 rounded-xl border-4 border-zinc-100 font-mono text-sm text-amber-700 space-y-2">
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 border-l-4 border-amber-500 pl-3">Income Protection by Churn Reduction Logic</h4>
+                  <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl border-4 border-zinc-100 dark:border-zinc-800 font-mono text-sm text-amber-700 dark:text-amber-500 space-y-2">
                     <p>Income Protected = Total Customers × (Churn Reduction / 100) × Annual Operating Income per Customer × Analysis Period</p>
                   </div>
-                  <p className="text-xs text-zinc-600 leading-relaxed">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                     Example: {inputs.totalCustomers.toLocaleString()} Customers × ({inputs.churnReduction}% / 100) × {formatCurrency(inputs.annualOperatingIncomePerCustomer)} × {inputs.supportYears} Yrs = {formatCurrency(metrics.incomeProtected)}.
                   </p>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-zinc-900 border-l-4 border-indigo-500 pl-3">Capacity Planning</h4>
-                  <p className="text-xs text-zinc-600 leading-relaxed">
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 border-l-4 border-indigo-500 pl-3">Capacity Planning</h4>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                     Factoring in annual bandwidth growth significantly increases ROI, as optimization defers the need for costly link upgrades that would otherwise be required to meet growing data demands.
                   </p>
                 </div>
               </div>
 
-              <div className="pt-6 border-t-4 border-zinc-100">
-                <h4 className="text-sm font-bold text-zinc-900 mb-4">Productivity & Cost Model Logic</h4>
+              <div className="pt-6 border-t-4 border-zinc-100 dark:border-zinc-800">
+                <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-4">Productivity & Cost Model Logic</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Employee Productivity Gain</p>
-                    <p className="text-xs text-zinc-600 leading-relaxed">
-                      Calculated based on <strong className="text-zinc-900">{formatCurrency(inputs.avgHourlyRate)} USD/hour</strong> per employee. We assume a <strong className="text-zinc-900">{inputs.networkImpactFactor}% Network Impact Factor</strong> (time spent waiting for slow applications), which is then optimized by the Steelhead performance gain.
+                    <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                      Calculated based on <strong className="text-zinc-900 dark:text-zinc-100">{formatCurrency(inputs.avgHourlyRate)} USD/hour</strong> per employee. We assume a <strong className="text-zinc-900 dark:text-zinc-100">{inputs.networkImpactFactor}% Network Impact Factor</strong> (time spent waiting for slow applications), which is then optimized by the Steelhead performance gain.
                     </p>
                   </div>
                 </div>
