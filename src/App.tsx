@@ -368,12 +368,15 @@ export default function App() {
     // Latency & BDP Calculations
     // BDP = Bandwidth (bps) * RTT (s)
     const bdpBits = (inputs.totalWanBw * 1000000) * (inputs.latencyRtt / 1000);
-    // TCP Throughput Limit (Mbps) = (WindowSize in bits) / (RTT in seconds) / 1,000,000
-    const throughputLimitMbps = inputs.latencyRtt > 0 
+    // Theoretical TCP Throughput Limit (Mbps) = (WindowSize in bits) / (RTT in seconds) / 1,000,000
+    const rawTcpThroughput = inputs.latencyRtt > 0 
       ? (inputs.tcpWindowSize * 1024 * 8) / (inputs.latencyRtt / 1000) / 1000000 
       : inputs.totalWanBw;
     
-    const effectiveBwUnoptimized = Math.min(inputs.totalWanBw, throughputLimitMbps);
+    // Max TCP Throughput cannot exceed physical link capacity (Total WAN BW)
+    const throughputLimitMbps = Math.min(inputs.totalWanBw, Math.max(0, rawTcpThroughput));
+    
+    const effectiveBwUnoptimized = throughputLimitMbps;
 
     // Bandwidth Cost Calculation
     const avgMonthlyCostPerMbps = (inputs.mplsMonthlyCostPerMbps * (inputs.mplsPercentage / 100)) + 
