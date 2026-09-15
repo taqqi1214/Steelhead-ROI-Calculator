@@ -125,7 +125,15 @@ interface ROIMetrics {
 // --- Constants & Assumptions ---
 
 const BW_REDUCTION_RATE = 0.65; // 65% average reduction
-const TCP_WINDOW_SIZES = [64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32768];
+const TCP_WINDOW_SIZES = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384];
+
+const formatTcpWindowSize = (kb: number) => {
+  if (kb >= 1024) {
+    const mb = kb / 1024;
+    return Number.isInteger(mb) ? `${mb} MB` : `${mb.toFixed(1)} MB`;
+  }
+  return `${kb} KB`;
+};
 
 const DEFAULT_INPUTS: ROIInputs = {
   supportYears: 3,
@@ -857,7 +865,7 @@ export default function App() {
                           TCP Window Size
                         </label>
                         <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border-4 border-blue-100">
-                          {inputs.tcpWindowSize} KB
+                          {formatTcpWindowSize(inputs.tcpWindowSize)}
                         </span>
                       </div>
                       <input 
@@ -865,13 +873,13 @@ export default function App() {
                         min="0" 
                         max={TCP_WINDOW_SIZES.length - 1} 
                         step="1"
-                        value={TCP_WINDOW_SIZES.indexOf(inputs.tcpWindowSize) === -1 ? 0 : TCP_WINDOW_SIZES.indexOf(inputs.tcpWindowSize)}
+                        value={TCP_WINDOW_SIZES.indexOf(inputs.tcpWindowSize) === -1 ? 4 : TCP_WINDOW_SIZES.indexOf(inputs.tcpWindowSize)}
                         onChange={(e) => setInputs({ ...inputs, tcpWindowSize: TCP_WINDOW_SIZES[parseInt(e.target.value)] })}
                         className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
                       />
                       <div className="flex justify-between text-[8px] font-bold text-zinc-400 px-1">
-                        <span>64K</span>
-                        <span>32M</span>
+                        <span>4KB</span>
+                        <span>16MB</span>
                       </div>
                     </div>
                     <div className="bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg border-4 border-zinc-100 dark:border-zinc-800 space-y-2 transition-colors duration-300">
